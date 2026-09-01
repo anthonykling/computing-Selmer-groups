@@ -149,3 +149,29 @@ def matrix_solver_F2(A, y):
         solutions.append(x)
 
     return solutions    
+
+def vec_to_d(vec, primes):
+    d = GaussInt(1,0)
+    for p in primes:
+        d = d * (p**vec[primes.index(p)])
+    return d
+
+def cond1(b, d, s_d, t_d):
+    t_b = b.t()
+    s_b = b.s()
+    b_0 = b.quotient(GaussInt(1,1)**t_b)
+    d_0 = d.quotient(GaussInt(1,1)**t_d)
+    
+    
+
+def partial_Selmer_group(b, s_d, t_d):
+    factors, primes, M = Laplacian_prime(b)
+    y = np.array([(p.m()*t_d + p.n()*s_d) % 2 for p in primes], dtype=int)
+    solutions = matrix_solver_F2(M, y)
+    
+    t_b = b.t()
+    s_b = b.s()
+    
+    # Condition 1
+    pass
+    
