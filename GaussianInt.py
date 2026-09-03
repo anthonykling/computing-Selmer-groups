@@ -75,7 +75,25 @@ class GaussInt:
 
         return result
 
+    def __mod__(self, other):
+        denominator = other.norm()
 
+        real_num = self.a * other.a + self.b * other.b
+        imag_num = self.b * other.a - self.a * other.b
+
+        # Round numerator/denominator to nearest integer
+        def nearest_integer(num, den):
+            if num >= 0:
+                return (2 * num + den) // (2 * den)
+            else:
+                return -((2 * (-num) + den) // (2 * den))
+
+        q_real = nearest_integer(real_num, denominator)
+        q_imag = nearest_integer(imag_num, denominator)
+
+        q = GaussInt(q_real, q_imag)
+
+        return self - q * other
     
     def norm(self):
         return self.a**2 + self.b**2
@@ -215,5 +233,13 @@ def quartic_res(z, p):
     else:
             raise ValueError("There was an error in calculated the residue symbol")
             
+t = GaussInt(1,1)
+t7 = GaussInt(1,1)**7
     
-           
+t7_residues = {
+    GaussInt(a, b)
+    for a in range(8)
+    for b in range(16)
+}
+
+t7_squares = {z**2 % t7 for z in t7_residues}

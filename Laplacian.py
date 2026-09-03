@@ -156,12 +156,43 @@ def vec_to_d(vec, primes):
         d = d * (p**vec[primes.index(p)])
     return d
 
-def cond1(b, d, s_d, t_d):
+def cond1(b, d, t_d):
     t_b = b.t()
-    s_b = b.s()
+    
+    if (t_b % 2) != (t_d % 2):
+        return False
+    
     b_0 = b.quotient(GaussInt(1,1)**t_b)
     d_0 = d.quotient(GaussInt(1,1)**t_d)
+    t5 = (GaussInt(1,1))**5
+    for sign in [1, -1]:
+        for k in range(2):
+            exp = 4*k + t_b
+            if t5.divides(b_0 - sign*d_0 + (d_0)**2 * (GaussInt(1,1)**exp)):
+                return True
+
+def cond2(b, d, t_d):
+    t = GaussInt(1,1)
+    t5 = GaussInt(1,1)**5
+    if t_d != 0:
+        return False
+    d_0 = d.quotient(GaussInt(1,1)**t_d)
+    for sign in [1, -1]:
+        for k in range(2):
+            if t5.divides(b*t**(4*k) - sign*d_0 + d_0**2):
+                return True
     
+def cond3(b, d, t_d):
+    t_b = b.t()
+    if t_b != 2*t_d:
+        return False
+    b_0 = b.quotient(GaussInt(1,1)**t_b)
+    d_0 = d.quotient(GaussInt(1,1)**t_d)
+    for a2 in t7_squares:
+        if t7.divides(b_0 - d*a2 + d_0**2):
+            return True
+    
+            
     
 
 def partial_Selmer_group(b, s_d, t_d):
@@ -172,6 +203,11 @@ def partial_Selmer_group(b, s_d, t_d):
     t_b = b.t()
     s_b = b.s()
     
-    # Condition 1
-    pass
+    d_solutions = [vec_to_d(sol, primes) for sol in solutions]
+    t_solutions = []
+    for d in d_solutions:
+        d = d * GaussInt(1,1)**t_d * GaussInt(0,1)**s_d
+        if cond1(b, d, t_d) or cond2(b, d, t_d) or cond3(b, d, t_d):
+            t_solutions.append(d)
+    return t_solutions
     
