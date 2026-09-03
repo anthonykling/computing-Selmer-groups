@@ -168,8 +168,9 @@ def cond1(b, d, t_d):
     for sign in [1, -1]:
         for k in range(2):
             exp = 4*k + t_b
-            if t5.divides(b_0 - sign*d_0 + (d_0)**2 * (GaussInt(1,1)**exp)):
+            if t5.divides(b_0 - GaussInt(sign,0)*d_0 + (d_0)**2 * (GaussInt(1,1)**exp)):
                 return True
+    return False
 
 def cond2(b, d, t_d):
     t = GaussInt(1,1)
@@ -179,8 +180,9 @@ def cond2(b, d, t_d):
     d_0 = d.quotient(GaussInt(1,1)**t_d)
     for sign in [1, -1]:
         for k in range(2):
-            if t5.divides(b*t**(4*k) - sign*d_0 + d_0**2):
+            if t5.divides(b*t**(4*k) - GaussInt(sign,0)*d_0 + d_0**2):
                 return True
+    return False
     
 def cond3(b, d, t_d):
     t_b = b.t()
@@ -191,6 +193,7 @@ def cond3(b, d, t_d):
     for a2 in t7_squares:
         if t7.divides(b_0 - d*a2 + d_0**2):
             return True
+    return False
     
             
     
