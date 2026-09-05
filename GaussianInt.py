@@ -1,4 +1,5 @@
 import sympy as sp
+import math
 
 def sum_two_squares(p):
     r = sp.sqrt_mod(-1, p, all_roots=True)[0]
@@ -39,6 +40,7 @@ class GaussInt:
         elif isinstance(other, int):
             return self.a == other and self.b == 0
         return NotImplemented  
+    
           
     def __hash__(self):
         return hash((self.a, self.b))
@@ -207,6 +209,18 @@ class GaussInt:
     def n(self):
         return log_i(quartic_res(GaussInt(0,1), self))
     
+    def is_prime(self):
+        a, b = abs(self.a), abs(self.b)
+
+        if a == 0 and b == 0:
+            return False
+
+        if a == 0 or b == 0:
+            n = max(a, b)
+            return sp.isprime(n) and n % 4 == 3
+
+        return sp.isprime(a*a + b*b)
+
 def log_i(z):
     if z not in [GaussInt(0,1)**k for k in range(4)]:
         raise ValueError("input is not a power of i")
@@ -233,6 +247,94 @@ def quartic_res(z, p):
     else:
             raise ValueError("There was an error in calculated the residue symbol")
             
+
+
+
+def gaussian_prime_congruent(norm_size, a, m):
+    """
+    Find a Gaussian prime p with
+        N(p) < norm_size
+        p == a (mod m)
+
+    Parameters
+    ----------
+    norm_size : int
+        Upper bound for the norm.
+    a, m : GaussInt
+        Congruence a modulo m.
+
+    Returns
+    -------
+    GaussInt
+        A Gaussian prime satisfying the conditions.
+
+    Raises
+    ------
+    ValueError
+        If no such prime is found below norm_size.
+    """
+
+    # We need p = a + q*m
+    max_q_norm = norm_size // m.norm()
+
+    max_q = math.isqrt(max_q_norm) + 1
+
+    for x in range(-max_q, max_q + 1):
+        for y in range(-max_q, max_q + 1):
+
+            q = GaussInt(x, y)
+            p = a + q * m
+
+            if p.norm() >= norm_size:
+                continue
+
+            if p.is_prime():
+                return p
+
+    raise ValueError(
+        f"No Gaussian prime congruent to {a} modulo {m} "
+        f"with norm < {norm_size}"
+    )
+
+def gaussian_primes(norm_size, a, m):
+    primes = []
+
+    bound = math.isqrt(norm_size - 1)
+
+    # Non-real/non-imaginary Gaussian primes
+    for x in range(1, bound + 1):
+        for y in range(1, bound + 1):
+
+            n = x*x + y*y
+
+            if n >= norm_size:
+                continue
+
+            # Gaussian prime iff norm is a rational prime
+            if sp.isprime(n):
+                p = GaussInt(x, y)
+
+                if m.divides(p - a):
+                    primes.append(p)
+
+    # Rational Gaussian primes p == 3 mod 4
+    for p in sp.primerange(3, norm_size):
+        if p % 4 == 3:
+
+            # Positive real representative
+            z = GaussInt(p, 0)
+
+            if m.divides(z - a):
+                primes.append(z)
+
+    # 1+i
+    z = GaussInt(1, 1)
+
+    if z.norm() < norm_size and m.divides(z - a):
+        primes.append(z)
+
+    return primes    
+    
 t = GaussInt(1,1)
 t7 = GaussInt(1,1)**7
     

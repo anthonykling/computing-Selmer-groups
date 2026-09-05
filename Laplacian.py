@@ -2,7 +2,7 @@ from GaussianInt import *
 import sympy as sp
 import numpy as np
 
-def degv(b, v, e=0):
+def degv(b, v, e=0, verbose=False):
     factors = b.factor()
     if v not in factors.keys():
         raise ValueError('p is not a primary prime factor of b')
@@ -11,10 +11,15 @@ def degv(b, v, e=0):
     if e != 0 and (ve % 2 == e % 2):
         raise ValueError('The parity of the exponent of v and of e should be different according to the main algorithm.')
     
-    oneV = [p for p in factors.keys() if factors[p] == 1]
-    twoV = [p for p in factors.keys() if factors[p] == 2]
-    threeV = [p for p in factors.keys() if factors[p] == 3]
+    oneV = [p for p in factors.keys() if factors[p] == 1 and p != GaussInt(1,1) and p != GaussInt(0,1)]
+    twoV = [p for p in factors.keys() if factors[p] == 2 and p != GaussInt(1,1) and p != GaussInt(0,1)]
+    threeV = [p for p in factors.keys() if factors[p] == 3 and p != GaussInt(1,1) and p != GaussInt(0,1)]
     
+    if verbose:
+        print('oneV:', oneV)
+        print('twoV:', twoV)
+        print('threeV:', threeV)
+        
     sum = 0
     if e == 1:
         for p in oneV:
@@ -46,7 +51,7 @@ def adj_matrix(b):
     #N = len(oddV) 
     #M = len(evenV)
     N = len(primes)    
-    primes.sort(key = lambda p: factors[p] % 2 == 0)
+    primes.sort(key = lambda p: (factors[p] % 2 == 0, factors[p]))
     
     matrix = np.empty((N,N), dtype=int)
     for i, p_i in enumerate(primes):
@@ -150,6 +155,37 @@ def matrix_solver_F2(A, y):
 
     return solutions    
 
+def rank_f2(A):
+    A = np.array(A, dtype=np.uint8).copy()
+    
+    rows, cols = A.shape
+    rank = 0
+
+    for col in range(cols):
+        # Find a pivot row
+        pivot = next(
+            (r for r in range(rank, rows) if A[r, col] == 1),
+            None
+        )
+
+        if pivot is None:
+            continue
+
+        # Swap pivot row into position
+        A[[rank, pivot]] = A[[pivot, rank]]
+
+        # Eliminate this column from all other rows
+        for r in range(rows):
+            if r != rank and A[r, col] == 1:
+                A[r] ^= A[rank]   # addition over F2
+
+        rank += 1
+
+        if rank == rows:
+            break
+
+    return rank
+
 def vec_to_d(vec, primes):
     d = GaussInt(1,0)
     for p in primes:
@@ -166,7 +202,7 @@ def cond1(b, d, t_d):
     d_0 = d.quotient(GaussInt(1,1)**t_d)
     t5 = (GaussInt(1,1))**5
     for sign in [1, -1]:
-        for k in range(2):
+        for k in range(3):
             exp = 4*k + t_b
             if t5.divides(b_0 - GaussInt(sign,0)*d_0 + (d_0)**2 * (GaussInt(1,1)**exp)):
                 return True
@@ -179,7 +215,7 @@ def cond2(b, d, t_d):
         return False
     d_0 = d.quotient(GaussInt(1,1)**t_d)
     for sign in [1, -1]:
-        for k in range(2):
+        for k in range(3):
             if t5.divides(b*t**(4*k) - GaussInt(sign,0)*d_0 + d_0**2):
                 return True
     return False
@@ -213,4 +249,7 @@ def partial_Selmer_group(b, s_d, t_d):
         if cond1(b, d, t_d) or cond2(b, d, t_d) or cond3(b, d, t_d):
             t_solutions.append(d)
     return t_solutions
+
+def Selmer_group(b):
+    return partial_Selmer_group(b, 0, 0) + partial_Selmer_group(b, 1, 0) + partial_Selmer_group(b, 0, 1) + partial_Selmer_group(b, 1, 1)
     
