@@ -35,7 +35,7 @@ def degv(b, v, e=0, verbose=False):
         return sum
     if e == 0:
         for p in factors.keys():
-            if p == v:
+            if p == v or p == GaussInt(1,1) or p == GaussInt(0,1):
                 continue
             sum = sum + log_i(quartic_res(p,v))
         return sum
