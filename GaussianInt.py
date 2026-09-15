@@ -1,5 +1,6 @@
 import sympy as sp
 import math
+from itertools import product
 
 def sum_two_squares(p):
     r = sp.sqrt_mod(-1, p, all_roots=True)[0]
@@ -187,7 +188,19 @@ class GaussInt:
         else:
                 raise ValueError(f"Factorization failed; remaining factor: {z}")
         factors[GaussInt(0,1)] = factors[GaussInt(0,1)] % 4
-        return factors                    
+        return factors    
+    
+    def is_prime(self):
+        a, b = abs(self.a), abs(self.b)
+
+        if a == 0 and b == 0:
+            return False
+
+        if a == 0 or b == 0:
+            n = max(a, b)
+            return sp.isprime(n) and n % 4 == 3
+
+        return sp.isprime(a*a + b*b)                
                     
     def s(self):
         # this is the power of i that appears in the primary factorization    
@@ -204,22 +217,39 @@ class GaussInt:
         return count
     
     def m(self):
-        return log_i(quartic_res(GaussInt(1,1), self))
+        if self.is_prime():
+            return log_i(quartic_res(GaussInt(1,1), self))
+        
+        else:
+            for (m,n), z in t9_residues.items():
+                if t9.divides(self - z):
+                    return m
     
     def n(self):
-        return log_i(quartic_res(GaussInt(0,1), self))
+        if self.is_prime():
+            return log_i(quartic_res(GaussInt(0,1), self))
+        
+        else:
+            for (m,n), z in t9_residues.items():
+                if t9.divides(self - z):
+                    return n
+
     
-    def is_prime(self):
-        a, b = abs(self.a), abs(self.b)
-
-        if a == 0 and b == 0:
-            return False
-
-        if a == 0 or b == 0:
-            n = max(a, b)
-            return sp.isprime(n) and n % 4 == 3
-
-        return sp.isprime(a*a + b*b)
+    def pow_mod(self,n, mod):
+        if n <0:
+            raise ValueError("Exponent must be nonnegative")
+        
+        result = GaussInt(1)
+        base = self % mod
+        while n > 0:
+            if n % 2 == 1:
+                result = (result*base) % mod
+            
+            base = (base * base) % mod
+            n //= 2
+            
+        return result
+        
 
 def log_i(z):
     if z not in [GaussInt(0,1)**k for k in range(4)]:
@@ -235,17 +265,18 @@ def quartic_res(z, p):
 
     if not p.is_primary():
         raise ValueError("Modulus must be primary") 
+
     
     if p.divides(z):
         return GaussInt(0)
     
     exp = ((p.norm() - 1) // 4) 
-    x = z**exp
+    x = z.pow_mod(exp, p)
     for k in range(4):
         if p.divides(x - GaussInt(0,1)**k):
             return GaussInt(0,1)**k
     else:
-            raise ValueError("There was an error in calculated the residue symbol")
+            raise ValueError("There was an error in calculating the residue symbol")
             
 
 
@@ -337,6 +368,7 @@ def gaussian_primes(norm_size, a, m):
     
 t = GaussInt(1,1)
 t7 = GaussInt(1,1)**7
+t9 = GaussInt(1,1)**9
     
 t7_residues = {
     GaussInt(a, b)
@@ -345,3 +377,7 @@ t7_residues = {
 }
 
 t7_squares = {z**2 % t7 for z in t7_residues}
+
+t9_residues = {(m,n):GaussInt(1,-4)**m * GaussInt(-1,-6)**n for 
+               (m,n) in product(range(8), range(8))}
+

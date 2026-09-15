@@ -234,9 +234,10 @@ def cond3(b, d, t_d):
             
     
 
-def partial_Selmer_group(b, s_d, t_d):
+def partial_Selmer_group(b, s_d, t_d, verbose=False):
     factors, primes, M = Laplacian_prime(b)
     y = np.array([(p.m()*t_d + p.n()*s_d) % 2 for p in primes], dtype=int)
+    if verbose: print(y)
     solutions = matrix_solver_F2(M, y)
     
     t_b = b.t()
