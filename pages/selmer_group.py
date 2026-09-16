@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 from utils import parse_gaussian_integer
 
 from GaussianInt import GaussInt, gaussian_primes
@@ -9,14 +10,17 @@ from Laplacian import Selmer_group
 st.title("Selmer Group Calculator")
 
 st.write(
-    "Compute the Selmer group associated to a Gaussian integer "
-    r"$b \in \mathbb{Z}[i]$."
+    r"Compute the Selmer group of the elliptic curve $E_b/ \mathbb{Q}(i)$"
+    r" associated to a Gaussian integer $b \in \mathbb{Z}[i]$"
+    r" where $E_b : y^2 = x^3 + bx$."
 )
 
 input_type = st.radio(
     "How would you like to specify b?",
-    ["Enter b directly", "Enter the prime factorization"]
+    ["Enter b directly", "Enter the factorization"]
 )
+
+show_factorization = st.toggle("Show factorization of $b$", value=False)
 
 
 # ---------------------------------------------------------
@@ -25,6 +29,7 @@ input_type = st.radio(
 
 if input_type == "Enter b directly":
 
+    st.write('*b* must be in the form *x+iy* or *x*')
     b_input = st.text_input(
         "Gaussian integer b",
         value="3 + 2i"
@@ -36,13 +41,20 @@ if input_type == "Enter b directly":
             b = parse_gaussian_integer(b_input)
 
             st.write(f"**b =** `{b}`")
+            if show_factorization:
+                with st.spinner("Factoring b..."):
+                    f = b.factor()
+                    result = {"Factor": f.keys(), "Exponent": f.values()}
+                    st.subheader("Primary Decomposition")
+                    st.dataframe(pd.DataFrame(result))
+                
 
             with st.spinner("Computing Selmer group..."):
                 S = Selmer_group(b)
 
             st.success("Computation complete!")
 
-            st.metric("Length of Selmer group", len(S))
+            st.metric("Size of Selmer group", len(S))
 
             st.write("Selmer group:")
             st.write(S)
@@ -58,7 +70,6 @@ if input_type == "Enter b directly":
 else:
 
     st.subheader("Specify the factorization of b")
-
     col1, col2 = st.columns(2)
 
     with col1:
@@ -80,12 +91,12 @@ else:
         )
 
     st.write(
-        r"Enter the primary Gaussian prime factors of $b$ "
+        r"Enter the factors of $b$ "
         r"and their exponents."
     )
 
     num_factors = st.number_input(
-        "Number of prime factors",
+        "Number of factors",
         min_value=1,
         max_value=20,
         value=1,
@@ -100,7 +111,7 @@ else:
 
         with col1:
             p_input = st.text_input(
-                f"Primary prime {j+1}",
+                f"Factor {j+1}",
                 key=f"prime_{j}",
                 placeholder="e.g. 5 + 2i"
             )
@@ -129,6 +140,13 @@ else:
                 b *= p ** exponent
 
             st.write(f"**Constructed b =** `{b}`")
+            
+            if show_factorization:
+                with st.spinner("Factoring b..."):
+                    f = b.factor()
+                    result = {"Factor": f.keys(), "Exponent": f.values()}
+                    st.subheader("Primary Decomposition")
+                    st.dataframe(pd.DataFrame(result))    
 
             with st.spinner("Computing Selmer group..."):
                 S = Selmer_group(b)

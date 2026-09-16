@@ -12,13 +12,20 @@ st.set_page_config(
 
 st.title("Selmer Group Calculator over Q(i)")
 
-st.write("""
-This application provides tools for computing Selmer groups associated
-to Gaussian integers and for exploring how Selmer group sizes vary
-over families of Gaussian primes.
+st.write(r"""
+This application implements the algorithm presented in https://arxiv.org/abs/2410.22714 
+to compute the Selmer group of $E_b : y^2 = x^3 + bx$ over $\mathbb{Q}(i)$
+where $b\in\mathbb{Z}[i]$.
 """)
 
 st.info(
-    "Use the sidebar to choose between the Selmer Group Calculator "
-    "and the Gaussian Prime Explorer."
+    "Use the sidebar to choose between computing the Selmer group of a single curve or a family of curves"
 )
+
+pg = st.navigation([
+    st.Page("app.py", title="Home"),
+    st.Page("pages/selmer.py", title="Selmer Group"),
+    st.Page("pages/primes.py", title="Selmer Group of Families"),
+    ])
+
+pg.run()
