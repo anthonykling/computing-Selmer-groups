@@ -220,19 +220,28 @@ class GaussInt:
         if self.is_prime():
             return log_i(quartic_res(GaussInt(1,1), self))
         
-        else:
-            for (m,n), z in t9_residues.items():
-                if t9.divides(self - z):
-                    return m
+        if not self.is_primary():
+            x = GaussInt(0,1)**self.s()
+            y = GaussInt(1,1)**self.t()
+            self = self.quotient(x*y)
+        
+        for (m,n), z in t9_residues.items():
+            if t9.divides(self - z):
+                return m
     
     def n(self):
         if self.is_prime():
             return log_i(quartic_res(GaussInt(0,1), self))
         
-        else:
-            for (m,n), z in t9_residues.items():
-                if t9.divides(self - z):
-                    return n
+        if not self.is_primary():
+            x = GaussInt(0,1)**self.s()
+            y = GaussInt(1,1)**self.t()
+            self = self.quotient(x*y)
+        
+
+        for (m,n), z in t9_residues.items():
+            if t9.divides(self - z):
+                return n
 
     
     def pow_mod(self,n, mod):
