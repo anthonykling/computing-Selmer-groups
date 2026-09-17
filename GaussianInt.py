@@ -358,7 +358,7 @@ def gaussian_primes(norm_size, a, m):
                     primes.append(p)
 
     # Rational Gaussian primes p == 3 mod 4
-    for p in sp.primerange(3, norm_size):
+    for p in sp.primerange(3, bound+1):
         if p % 4 == 3:
 
             # Positive real representative

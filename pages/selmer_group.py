@@ -17,9 +17,9 @@ st.write(
 
 input_type = st.radio(
     "How would you like to specify b?",
-    ["Enter b directly", "Enter the factorization"]
+    ["Enter b directly", "Enter a factorization"]
 )
-
+st.info("Note that when entering a factorization of $b$, the factors can be anything; they are not required to be prime.")
 show_factorization = st.toggle("Show factorization of $b$", value=False)
 
 

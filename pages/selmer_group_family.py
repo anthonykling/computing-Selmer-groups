@@ -11,10 +11,9 @@ st.title("Gaussian Prime Explorer")
 
 st.write(
     r"""
-    Generate Gaussian primes satisfying
-    \(N(p) < \text{norm\_size}\) and
-    \(p \equiv a \pmod m\), then compute the size of the
-    corresponding Selmer groups.
+    This will generate all Gaussian primes $p$ of norm less than the specified bound and
+    $p \equiv a (\text{mod}\;m)$, then computes the size of the
+    corresponding Selmer group of $E_p$.  The data is then presented as a frequency plot.
     """
 )
 
@@ -67,7 +66,7 @@ if st.button("Generate and Compute", type="primary"):
             results.append({
                 "prime": str(p),
                 "norm": p.norm(),
-                "Selmer group length": len(S)
+                "Selmer group size": len(S)
             })
 
             progress.progress((j + 1) / len(primes))
@@ -82,20 +81,38 @@ if st.button("Generate and Compute", type="primary"):
         # Bar graph
         # -------------------------------------------------
 
-        st.subheader("Selmer Group Sizes")
+        st.subheader("Frequency of Selmer Group Sizes")
 
-        fig, ax = plt.subplots()
-
-        ax.bar(
-            df["prime"],
-            df["Selmer group length"]
+        frequency = (
+            df["Selmer group size"]
+            .value_counts()
+            .sort_index()
         )
 
-        ax.set_xlabel("Gaussian prime")
-        ax.set_ylabel("Length of Selmer group")
-        ax.set_title("Selmer Group Lengths")
+        fig, ax = plt.subplots(figsize=(8, 5))
 
-        plt.xticks(rotation=90)
+        ax.bar(
+            frequency.index.astype(str),
+            frequency.values,
+            width=0.7
+        )
+
+        ax.set_xlabel("Selmer group size")
+        ax.set_ylabel("Frequency")
+        ax.set_title("Distribution of Selmer Group Sizes")
+
+        # Add frequency labels above each bar
+        for i, value in enumerate(frequency.values):
+            ax.text(
+                i,
+                value,
+                str(value),
+                ha="center",
+                va="bottom"
+            )
+
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
 
         st.pyplot(fig)
 

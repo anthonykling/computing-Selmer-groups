@@ -2,6 +2,13 @@ import streamlit as st
 #from GaussianInt import GaussInt, gaussian_primes
 #from Laplacian import Selmer_group
 
+st.set_page_config(
+    page_title="Gaussian Selmer Groups",
+    page_icon="𝑖",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
 st.title("Selmer Group Calculator over Q(i)")
 
 st.write(r"""
