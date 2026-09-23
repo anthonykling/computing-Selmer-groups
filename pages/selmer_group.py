@@ -20,7 +20,7 @@ input_type = st.radio(
     ["Enter b directly", "Enter a factorization"]
 )
 st.info("Note that when entering a factorization of $b$, the factors can be anything; they are not required to be prime.")
-show_factorization = st.toggle("Show factorization of $b$", value=False)
+show_factorization = st.toggle("Show primary factorization of $b$", value=False)
 
 
 # ---------------------------------------------------------
@@ -29,7 +29,7 @@ show_factorization = st.toggle("Show factorization of $b$", value=False)
 
 if input_type == "Enter b directly":
 
-    st.write('*b* must be in the form *x+iy* or *x*')
+    st.write('*b* must be in the form *x+yi* or *x*')
     b_input = st.text_input(
         "Gaussian integer b",
         value="3 + 2i"
