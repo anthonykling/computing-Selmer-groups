@@ -8,4 +8,4 @@ We list the main functions which go into creating the algorithm.
 
 The Jupyter notebook `testing.ipynb` consists of an empirical verification to Corollary 6.1 and Theorem 6.8 as well as a verification of Example 6.1 to test the implementation of our algorithm.  
 
-For convenience, one can readily use the algorithm at https://selmergraph.streamlit.app/ for any choice of $b$ or a family of $b$.
+For convenience, one can readily use the algorithm at https://selmergraph.streamlit.app/ for any choice of $b$ or a congruence class of $b$.
